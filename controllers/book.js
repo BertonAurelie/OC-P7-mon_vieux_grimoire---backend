@@ -33,19 +33,17 @@ exports.getOneBook = (req, res, next) => {
 };
 
 exports.postcreateBook = (req, res, next) =>{
-  console.log("post bonjour")
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
   const book = new Books({
     ...bookObject,
     userId:req.auth.userId,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/resizedimages/${req.file.originalname}`
+    imageUrl: `${req.protocol}://${req.get('host')}/images/resizedimages/${req.file.filename}.webp`
   });
   book.save()
   .then(() => res.status(201).json({message:'livre ajouté'}))
   .catch((error) => {res.status(400).json( { error } )});
-  console.log("post aurevoir")
 };
 
 exports.deleteBook = (req, res) => {
