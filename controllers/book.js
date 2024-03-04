@@ -3,10 +3,9 @@ const fs = require('fs');
 
 
 exports.putModifiedOneBook = (req, res, next) => {
-  console.log('getOneBook done' + req.body + req.params.id)
   const bookObject = req.file ? {
     ...JSON.parse(req.body.book),
-    imageUrl: `${req.protocol}://${req.get('host')}/images/resizedimages/${req.file.originalname}`
+    imageUrl: `${req.protocol}://${req.get('host')}/images/resizedimages/${req.file.filename}.webp`
 } : { ...req.body };
 
   delete bookObject._userId;
@@ -26,7 +25,6 @@ exports.putModifiedOneBook = (req, res, next) => {
 };
 
 exports.getOneBook = (req, res, next) => {
-  console.log('getOneBook done' + req.body + req.params.id)
     Books.findOne({_id: req.params.id})
     .then(book => res.status(200).json(book))
     .catch(error => res.status(400).json({error}));
@@ -53,7 +51,7 @@ exports.deleteBook = (req, res) => {
             res.status(401).json({message: 'Not authorized'});
         } else {
             const filename = book.imageUrl.split('/images/resizedimages')[1];
-            fs.unlink(`/images/resizedimages/${filename}`, () => {
+            fs.unlink(`images/resizedimages/${filename}`, () => {
               Books.deleteOne({_id: req.params.id})
                   .then(() => { res.status(200).json({message: 'Objet supprimé !'})})
                   .catch(error => res.status(401).json({ error }));
@@ -73,7 +71,6 @@ exports.getBestRatingBooks = (req, res, next) => {
 };
 
 exports.getAllBooks = (req, res, next) => {
-    console.log('getAllBooks done')
     Books.find()
       .then(books => res.status(200).json(books))
       .catch(error => res.status(400).json({error}))

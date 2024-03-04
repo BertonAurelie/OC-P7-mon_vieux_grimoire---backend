@@ -6,7 +6,7 @@ const sharp = require('../middleware/sharp')
 
 const router = express.Router();
 
-router.put('/:id', auth, multer, bookCtrl.putModifiedOneBook);
+router.put('/:id', auth, multer,sharp, bookCtrl.putModifiedOneBook);
 router.delete('/:id',auth, bookCtrl.deleteBook);
 router.get('/', bookCtrl.getAllBooks);
 router.post('/',auth, multer,sharp, bookCtrl.postcreateBook);
