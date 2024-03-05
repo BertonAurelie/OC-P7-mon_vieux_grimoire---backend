@@ -70,10 +70,26 @@ exports.getBestRatingBooks = (req, res, next) => {
       .catch(error => res.status(400).json({error}))
 };
 
+exports.postAuthRatingBook = (req, res, next) => {
+  console.log("postAuthRatingBook" + JSON.stringify(req.body))
+  console.log("AUTHPOST " + JSON.stringify(req.auth.userId))
+  console.log("AUTHPOST " + req.params.id)
+  Books.findOneAndUpdate({ _id: req.params.id, 'ratings.userId' : {$nin : [req.auth.userId]}}
+      , {
+      $push: {
+        ratings : {
+        userId: req.body.userId,
+        grade: req.body.rating}
+      }
+      },
+      {upsert : true}
+    ).then(book => res.status(200).json(book))
+    .catch(error => res.status(400).json({error}))
+}
+
 exports.getAllBooks = (req, res, next) => {
     Books.find()
       .then(books => res.status(200).json(books))
       .catch(error => res.status(400).json({error}))
-    
-  };
+};
 
