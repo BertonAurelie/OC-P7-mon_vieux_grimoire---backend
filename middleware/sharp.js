@@ -3,7 +3,6 @@ const fs = require('fs');
 
 module.exports = async function(req, res, next) {
     if(req.file) {
-        console.log(req.file)
         sharp.cache(false);
         await sharp(req.file.path)
             .webp()
