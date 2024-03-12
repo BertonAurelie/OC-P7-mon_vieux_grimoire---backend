@@ -34,6 +34,7 @@ exports.postcreateBook = (req, res, next) =>{
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
+
   const book = new Books({
     ...bookObject,
     userId:req.auth.userId,
@@ -74,17 +75,30 @@ exports.postAuthRatingBook = (req, res, next) => {
   console.log("postAuthRatingBook" + JSON.stringify(req.body))
   console.log("AUTHPOST " + JSON.stringify(req.auth.userId))
   console.log("AUTHPOST " + req.params.id)
-  Books.findOneAndUpdate({ _id: req.params.id, 'ratings.userId' : {$nin : [req.auth.userId]}}
-      , {
-      $push: {
-        ratings : {
-        userId: req.body.userId,
-        grade: req.body.rating}
-      }
+  Books.findOne({ _id: req.params.id})
+  .then(book => {
+    newAverageRating = (book.ratings.length * book.averageRating + req.body.rating) / (book.ratings.length + 1)
+    Books.findOneAndUpdate(
+      { _id: req.params.id, 'ratings.userId' : {$nin : [req.auth.userId]}},
+      {
+        $push: {
+          ratings : {
+          userId: req.body.userId,
+          grade: req.body.rating}
+        },
+        averageRating: newAverageRating
       },
-      {upsert : true}
-    ).then(book => res.status(200).json(book))
-    .catch(error => res.status(400).json({error}))
+      { returnDocument : "after"}
+      )
+      .then(updatedBook => {
+
+        if (updatedBook) {
+          book = updatedBook;
+        }
+        res.status(200).json(book)})
+      .catch(error => res.status(400).json({error}))
+    })
+  .catch(error => res.status(400).json({error}))
 }
 
 exports.getAllBooks = (req, res, next) => {

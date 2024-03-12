@@ -6,13 +6,13 @@ const sharp = require('../middleware/sharp')
 
 const router = express.Router();
 
-router.put('/:id', auth, multer,sharp, bookCtrl.putModifiedOneBook);
+router.get('/bestrating', bookCtrl.getBestRatingBooks);
+router.post('/:id/rating', auth, bookCtrl.postAuthRatingBook);
+router.get('/:id', bookCtrl.getOneBook);
+router.put('/:id', auth, multer, sharp, bookCtrl.putModifiedOneBook);
 router.delete('/:id',auth, bookCtrl.deleteBook);
 router.get('/', bookCtrl.getAllBooks);
-router.post('/',auth, multer,sharp, bookCtrl.postcreateBook);
-router.get('/bestrating', bookCtrl.getBestRatingBooks);
-router.post('/:id/rating',auth, bookCtrl.postAuthRatingBook);
-router.get('/:id', bookCtrl.getOneBook);
+router.post('/', auth, multer, sharp, bookCtrl.postcreateBook);
 
 module.exports = router;
 
