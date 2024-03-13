@@ -5,22 +5,30 @@ const User = require('../models/User');
 
 
 exports.signup = (req, res, next) => {
-    console.log("signup : " + req.body)
-    bcrypt.hash(req.body.password, 10)
-    .then(hash => {
-        const user = new User ({
-            email: req.body.email,
-            password: hash,
-        });
-        user.save()
-            .then(() => res.status(201).json({message : 'utilisateur enregistré.'}))
-            .catch(error => res.status(400).json({error}))
-    })
-    .catch(error => res.status(500).json({error}));
+    User.findOne({email: req.body.email})
+    .then(user => {
+        if (user === null){
+            bcrypt.hash(req.body.password, 10)
+            .then(hash => {
+                const user = new User ({
+                    email: req.body.email,
+                    password: hash,
+                });
+                user.save()
+                    .then(() => res.status(201).json({message : 'utilisateur enregistré.'}))
+                    .catch(error => res.status(400).json({error}))
+            })
+            .catch(error => res.status(500).json({error}))
+        } else {
+            res.status(409).json({message : 'utilisateur déjà enregistré.'})
+
+        }}
+    )
+    .catch(error => res.status(500).json({error}))
+    
 };
 
 exports.login = (req, res, next) => {
-    console.log("login : " + req.body)
     User.findOne({email: req.body.email})
     .then(user => {
         if (user === null) {
