@@ -14,12 +14,18 @@ exports.putModifiedOneBook = (req, res, next) => {
           if (book.userId != req.auth.userId) {
               res.status(401).json({ message : 'Not authorized'});
           } else {
-            const filename = book.imageUrl.split('/resizedimages/')[1]
-            fs.unlink(`images/resizedimages/${filename}`, () => {
+            if (req.file) {
+              const filename = book.imageUrl.split('/resizedimages/')[1]
+              fs.unlink(`images/resizedimages/${filename}`, () => {
+                Books.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id})
+                .then(() => res.status(200).json({message : 'Livre modifié!'}))
+                .catch(error => res.status(401).json({ error }));
+              }); 
+            } else {
               Books.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id})
               .then(() => res.status(200).json({message : 'Livre modifié!'}))
-              .catch(error => res.status(401).json({ error }));
-            });              
+              .catch(error => res.status(401).json({ error })); 
+            }         
           }
       })
       .catch((error) => {
