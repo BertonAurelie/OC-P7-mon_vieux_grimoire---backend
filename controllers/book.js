@@ -77,27 +77,30 @@ exports.getBestRatingBooks = (req, res, next) => {
 exports.postAuthRatingBook = (req, res, next) => {
   Books.findOne({ _id: req.params.id})
   .then(book => {
-    newAverageRating = (book.ratings.length * book.averageRating + req.body.rating) / (book.ratings.length + 1)
-    Books.findOneAndUpdate(
-      { _id: req.params.id, 'ratings.userId' : {$nin : [req.auth.userId]}},
-      {
-        $push: {
-          ratings : {
-          userId: req.body.userId,
-          grade: req.body.rating}
+    if (!book) {
+        res.status(401).json({message: "Le livre n'existe pas"});
+    } else {
+      newAverageRating = (book.ratings.length * book.averageRating + req.body.rating) / (book.ratings.length + 1)
+      Books.findOneAndUpdate(
+        { _id: req.params.id, 'ratings.userId' : {$nin : [req.auth.userId]}},
+        {
+          $push: {
+            ratings : {
+            userId: req.body.userId,
+            grade: req.body.rating}
+          },
+          averageRating: newAverageRating
         },
-        averageRating: newAverageRating
-      },
-      { returnDocument : "after"}
-      )
-      .then(updatedBook => {
-
-        if (updatedBook) {
-          book = updatedBook;
-        }
-        res.status(200).json(book)})
-      .catch(error => res.status(400).json({error}))
-    })
+        { returnDocument : "after"}
+        )
+        .then(updatedBook => {
+          if (updatedBook) {
+            book = updatedBook;
+          }
+          res.status(200).json(book)})
+        .catch(error => res.status(400).json({error}))
+    }
+  })
   .catch(error => res.status(400).json({error}))
 }
 
